@@ -1,5 +1,3 @@
-use std::{sync::Arc, thread};
-
 use rayon::prelude::*;
 
 const ROOT_URL: &str = "https://api.n2yo.com/rest/v1/";
