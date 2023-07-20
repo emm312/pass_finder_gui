@@ -39,9 +39,12 @@ pub struct RadioPasses {
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct RadioPass {
-    pub startUTC: usize,
-    pub endUTC: usize,
-    pub maxEl: f64,
+    #[serde(alias = "startUTC")]
+    pub start_utc: usize,
+    #[serde(alias = "endUTC")]
+    pub end_utc: usize,
+    #[serde(alias = "maxEl")]
+    pub max_el: f64,
 }
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]

@@ -134,16 +134,16 @@ impl eframe::App for PassesApp {
                                 "Starts: {}",
                                 time_format::strftime_utc(
                                     "%m/%d/%Y, %H:%M:%S",
-                                    pass.startUTC as i64
+                                    pass.start_utc as i64
                                 )
                                 .unwrap()
                             ));
                             ui.label(format!(
                                 "Ends: {}",
-                                time_format::strftime_utc("%m/%d/%Y, %H:%M:%S", pass.endUTC as i64)
+                                time_format::strftime_utc("%m/%d/%Y, %H:%M:%S", pass.end_utc as i64)
                                     .unwrap()
                             ));
-                            ui.label(format!("Max elevation: {}", pass.maxEl));
+                            ui.label(format!("Max elevation: {}", pass.max_el));
                             ui.separator();
                         }
                     });
