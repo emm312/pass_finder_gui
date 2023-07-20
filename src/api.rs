@@ -1,32 +1,47 @@
+use std::{sync::Arc, thread};
+
+use rayon::prelude::*;
+
 const ROOT_URL: &str = "https://api.n2yo.com/rest/v1/";
 
 pub struct N2YOApi {
     api_key: String,
+    batched_reqs: Vec<String>,
 }
 
 impl N2YOApi {
     pub fn new(api_key: String) -> N2YOApi {
-        N2YOApi { api_key }
+        N2YOApi {
+            api_key,
+            batched_reqs: Vec::new(),
+        }
     }
 
     pub fn get_radiopasses(
-        &self,
+        &mut self,
         id: usize,
         lat: f64,
         long: f64,
         min_elevation: usize,
         days: usize,
-    ) -> RadioPasses {
-        let req = reqwest::blocking::get(
+    ) {
+        self.batched_reqs.push(
             ROOT_URL.to_owned()
                 + &format!(
                     "satellite/radiopasses/{id}/{lat}/{long}/0/{days}/{min_elevation}/&apiKey={}",
                     self.api_key
                 ),
         )
-        .unwrap();
-        let tct = req.text().unwrap();
-        serde_json::from_str(&tct).unwrap()
+    }
+
+    pub fn dispatch_reqs(&mut self) -> Vec<RadioPasses> {
+        self.batched_reqs
+            .par_iter()
+            .map(|elem| {
+                serde_json::from_str(&reqwest::blocking::get(elem).unwrap().text().unwrap())
+                    .unwrap()
+            })
+            .collect()
     }
 }
 

@@ -111,22 +111,23 @@ impl eframe::App for PassesApp {
             });
             ui.separator();
             if ui.button("Get Passes").clicked() {
+                let mut api = N2YOApi::new(api_key.to_string());
                 *cached_passes = Vec::new();
                 ui.separator();
                 for id in sats {
-                    let pass = N2YOApi::new(api_key.clone()).get_radiopasses(
+                    api.get_radiopasses(
                         *id,
                         lat.parse().unwrap_or(0.),
                         long.parse().unwrap_or(0.),
                         min_elevation.parse().unwrap_or(0),
                         days.parse().unwrap_or(1),
                     );
-                    cached_passes.push(pass);
                 }
+                *cached_passes = api.dispatch_reqs();
             }
             egui::ScrollArea::vertical().show(ui, |ui| {
-                for pass in cached_passes {
-                    egui::CollapsingHeader::new(&pass.info.satname).show(ui, |ui| {
+                for (n, pass) in cached_passes.into_iter().enumerate() {
+                    egui::CollapsingHeader::new(&pass.info.satname).id_source(n).show(ui, |ui| {
                         ui.separator();
                         for (num, pass) in pass.passes.iter().enumerate() {
                             ui.heading(format!("Pass {}", num));
