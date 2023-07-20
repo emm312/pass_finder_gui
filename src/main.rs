@@ -127,30 +127,32 @@ impl eframe::App for PassesApp {
             }
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for (n, pass) in cached_passes.into_iter().enumerate() {
-                    egui::CollapsingHeader::new(&pass.info.satname).id_source(n).show(ui, |ui| {
-                        ui.separator();
-                        for (num, pass) in pass.passes.iter().enumerate() {
-                            ui.heading(format!("Pass {}", num));
-                            ui.label(format!(
-                                "Starts: {}",
-                                time_format::strftime_utc(
-                                    "%m/%d/%Y, %H:%M:%S",
-                                    pass.start_utc as i64
-                                )
-                                .unwrap()
-                            ));
-                            ui.label(format!(
-                                "Ends: {}",
-                                time_format::strftime_utc(
-                                    "%m/%d/%Y, %H:%M:%S",
-                                    pass.end_utc as i64
-                                )
-                                .unwrap()
-                            ));
-                            ui.label(format!("Max elevation: {}", pass.max_el));
+                    egui::CollapsingHeader::new(&pass.info.satname)
+                        .id_source(n)
+                        .show(ui, |ui| {
                             ui.separator();
-                        }
-                    });
+                            for (num, pass) in pass.passes.iter().enumerate() {
+                                ui.heading(format!("Pass {}", num));
+                                ui.label(format!(
+                                    "Starts: {}",
+                                    time_format::strftime_utc(
+                                        "%m/%d/%Y, %H:%M:%S",
+                                        pass.start_utc as i64
+                                    )
+                                    .unwrap()
+                                ));
+                                ui.label(format!(
+                                    "Ends: {}",
+                                    time_format::strftime_utc(
+                                        "%m/%d/%Y, %H:%M:%S",
+                                        pass.end_utc as i64
+                                    )
+                                    .unwrap()
+                                ));
+                                ui.label(format!("Max elevation: {}", pass.max_el));
+                                ui.separator();
+                            }
+                        });
                 }
             });
         });
