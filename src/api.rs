@@ -33,13 +33,15 @@ impl N2YOApi {
     }
 
     pub fn dispatch_reqs(&mut self) -> Vec<RadioPasses> {
-        self.batched_reqs
+        let ret = self.batched_reqs
             .par_iter()
             .map(|elem| {
                 serde_json::from_str(&reqwest::blocking::get(elem).unwrap().text().unwrap())
                     .unwrap()
             })
-            .collect()
+            .collect();
+        self.batched_reqs = Vec::new();
+        ret
     }
 }
 

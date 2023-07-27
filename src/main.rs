@@ -1,4 +1,8 @@
-use pass_finder::api::{N2YOApi, RadioPasses};
+mod api;
+
+use api::{N2YOApi, RadioPasses};
+use chrono::prelude::*;
+use chrono_tz::Tz;
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
@@ -47,6 +51,13 @@ impl Default for PassesApp {
             cached_passes: Vec::new(),
         }
     }
+}
+
+fn convert_unix_to_local(date: i64) -> String {
+    let naive = NaiveDateTime::from_timestamp_opt(date, 0).unwrap();
+    let utc_time = naive.and_local_timezone(Utc).unwrap();
+    let tz: Tz = "Australia/Sydney".parse().unwrap();
+    utc_time.with_timezone(&tz).to_string()
 }
 
 impl eframe::App for PassesApp {
@@ -135,19 +146,11 @@ impl eframe::App for PassesApp {
                                 ui.heading(format!("Pass {}", num));
                                 ui.label(format!(
                                     "Starts: {}",
-                                    time_format::strftime_utc(
-                                        "%m/%d/%Y, %H:%M:%S",
-                                        pass.start_utc as i64
-                                    )
-                                    .unwrap()
+                                    convert_unix_to_local(pass.start_utc as i64)
                                 ));
                                 ui.label(format!(
                                     "Ends: {}",
-                                    time_format::strftime_utc(
-                                        "%m/%d/%Y, %H:%M:%S",
-                                        pass.end_utc as i64
-                                    )
-                                    .unwrap()
+                                    convert_unix_to_local(pass.end_utc as i64)
                                 ));
                                 ui.label(format!("Max elevation: {}", pass.max_el));
                                 ui.separator();
