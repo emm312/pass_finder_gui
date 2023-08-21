@@ -13,7 +13,7 @@ fn main() -> eframe::Result<()> {
     )
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Default)]
 pub struct PassesApp {
     lat: String,
     long: String,
@@ -37,22 +37,6 @@ impl PassesApp {
             return eframe::get_value(c, eframe::APP_KEY).unwrap_or_default();
         }
         Default::default()
-    }
-}
-
-impl Default for PassesApp {
-    fn default() -> Self {
-        Self {
-            lat: String::default(),
-            long: String::default(),
-            sats: Vec::new(),
-            sat: String::default(),
-            api_key: String::default(),
-            min_elevation: String::default(),
-            days: String::default(),
-            cached_passes: Vec::new(),
-            rough_elevation: String::default()
-        }
     }
 }
 
@@ -145,7 +129,7 @@ impl eframe::App for PassesApp {
                 *cached_passes = api.dispatch_reqs();
             }
             egui::ScrollArea::vertical().show(ui, |ui| {
-                for (n, pass) in cached_passes.into_iter().enumerate() {
+                for (n, pass) in cached_passes.iter_mut().enumerate() {
                     egui::CollapsingHeader::new(&pass.info.satname)
                         .id_source(n)
                         .show(ui, |ui| {
