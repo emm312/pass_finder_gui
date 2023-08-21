@@ -27,6 +27,8 @@ pub struct PassesApp {
     min_elevation: String,
     #[serde(skip)]
     days: String,
+    #[serde(skip)]
+    rough_elevation: String,
 }
 
 impl PassesApp {
@@ -49,6 +51,7 @@ impl Default for PassesApp {
             min_elevation: String::default(),
             days: String::default(),
             cached_passes: Vec::new(),
+            rough_elevation: String::default()
         }
     }
 }
@@ -74,6 +77,7 @@ impl eframe::App for PassesApp {
             min_elevation,
             days,
             cached_passes,
+            rough_elevation
         } = self;
         egui::SidePanel::left("sat_inputs")
             .max_width(150.)
@@ -120,6 +124,10 @@ impl eframe::App for PassesApp {
                 ui.label("Days to search:");
                 ui.text_edit_singleline(days);
             });
+            ui.horizontal(|ui| {
+                ui.label("Rough elevation:");
+                ui.text_edit_singleline(rough_elevation);
+            });
             ui.separator();
             if ui.button("Get Passes").clicked() {
                 let mut api = N2YOApi::new(api_key.to_string());
@@ -143,17 +151,33 @@ impl eframe::App for PassesApp {
                         .show(ui, |ui| {
                             ui.separator();
                             for (num, pass) in pass.passes.iter().enumerate() {
-                                ui.heading(format!("Pass {}", num));
-                                ui.label(format!(
-                                    "Starts: {}",
-                                    convert_unix_to_local(pass.start_utc as i64)
-                                ));
-                                ui.label(format!(
-                                    "Ends: {}",
-                                    convert_unix_to_local(pass.end_utc as i64)
-                                ));
-                                ui.label(format!("Max elevation: {}", pass.max_el));
-                                ui.separator();
+                                if let Ok(rough_elevation) = rough_elevation.parse::<usize>() {
+                                    if (pass.max_el as usize) > rough_elevation.max(2)-2 && (pass.max_el as usize) < rough_elevation+2 {
+                                        ui.heading(format!("Pass {}", num));
+                                        ui.label(format!(
+                                            "Starts: {}",
+                                            convert_unix_to_local(pass.start_utc as i64)
+                                        ));
+                                        ui.label(format!(
+                                            "Ends: {}",
+                                            convert_unix_to_local(pass.end_utc as i64)
+                                        ));
+                                        ui.label(format!("Max elevation: {}", pass.max_el));
+                                        ui.separator();
+                                    }
+                                } else {
+                                    ui.heading(format!("Pass {}", num));
+                                    ui.label(format!(
+                                        "Starts: {}",
+                                        convert_unix_to_local(pass.start_utc as i64)
+                                    ));
+                                    ui.label(format!(
+                                        "Ends: {}",
+                                        convert_unix_to_local(pass.end_utc as i64)
+                                    ));
+                                    ui.label(format!("Max elevation: {}", pass.max_el));
+                                    ui.separator();
+                                }
                             }
                         });
                 }
